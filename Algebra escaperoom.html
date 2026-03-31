@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Algebra Escape Room</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+    .box {
+      background: rgba(0,0,0,0.8);
+      padding: 25px;
+      border-radius: 15px;
+      width: 320px;
+      margin: auto;
+      box-shadow: 0 0 15px black;
+    }
+    input {
+      padding: 10px;
+      margin-top: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #timer {
+      font-size: 18px;
+      color: lightgreen;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2> Algebra Escape Room</h2>
+  <p id="timer">Time: 60</p>
+  <p id="question"></p>
+  <input type="text" id="answer" placeholder="Enter answer">
+  <br>
+  <button onclick="check()">Unlock</button>
+  <p id="result"></p>
+</div>
+
+<audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+let level = 0;
+let time = 60;
+
+let questions = [
+  {q: "Door 1: Solve x + 7 = 15", a: "8"},
+  {q: "Door 2: Factor x^2 - 25", a: "(x-5)(x+5)"},
+  {q: "Door 3: Expand (x+3)(x+4)", a: "x^2+7x+12"},
+  {q: "Door 4: Simplify 36", a: "6"},
+  {q: "Final Door: 5, 10, 15, ?", a: "20"}
+];
+
+function load(){
+  document.getElementById("question").innerText = questions[level].q;
+}
+
+function check(){
+  let input = document.getElementById("answer").value;
+
+  if(input == questions[level].a){
+    document.getElementById("correctSound").play();
+    document.getElementById("result").innerText = " Correct!";
+    level++;
+
+    if(level < questions.length){
+      setTimeout(load, 1000);
+    } else {
+      document.getElementById("question").innerText = " YOU ESCAPED!";
+      document.getElementById("result").innerText = "";
+    }
+  } else {
+    document.getElementById("wrongSound").play();
+    document.getElementById("result").innerText = " Try again!";
+  }
+
+  document.getElementById("answer").value = "";
+}
+
+setInterval(function(){
+  time--;
+  document.getElementById("timer").innerText = "Time: " + time;
+
+  if(time <= 0){
+    document.getElementById("question").innerText = " Time's up!";
+  }
+}, 1000);
+
+load();
+</script>
+
+</body>
+</html>
