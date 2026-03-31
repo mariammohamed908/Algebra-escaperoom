@@ -1,52 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Algebra Escape Room</title>
   <style>
     body {
-      font-family: Arial;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #141e30, #243b55);
       color: white;
       text-align: center;
       padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
     .box {
-      background: rgba(0,0,0,0.8);
-      padding: 25px;
+      background: rgba(0,0,0,0.85);
+      padding: 30px;
       border-radius: 15px;
-      width: 320px;
-      margin: auto;
-      box-shadow: 0 0 15px black;
+      width: 350px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border: 1px solid #444;
     }
     input {
-      padding: 10px;
-      margin-top: 10px;
+      padding: 12px;
+      margin-top: 15px;
       width: 80%;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
     }
     button {
-      padding: 10px;
-      margin-top: 10px;
-      background: gold;
+      padding: 10px 25px;
+      margin-top: 15px;
+      background: #ffd700;
+      color: #141e30;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #ffec80;
     }
     #timer {
-      font-size: 18px;
-      color: lightgreen;
+      font-size: 20px;
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
     }
   </style>
 </head>
-
 <body>
 
 <div class="box">
-  <h2> Algebra Escape Room</h2>
+  <h2>🔐 Algebra Escape Room</h2>
   <p id="timer">Time: 60</p>
-  <p id="question"></p>
-  <input type="text" id="answer" placeholder="Enter answer">
+  <hr>
+  <p id="question">Loading...</p>
+  <input type="text" id="answer" placeholder="Type answer here..." onkeypress="handleKey(event)">
   <br>
-  <button onclick="check()">Unlock</button>
+  <button onclick="check()">Unlock Door</button>
   <p id="result"></p>
 </div>
 
@@ -56,12 +77,13 @@
 <script>
 let level = 0;
 let time = 60;
+let gameActive = true;
 
 let questions = [
   {q: "Door 1: Solve x + 7 = 15", a: "8"},
   {q: "Door 2: Factor x^2 - 25", a: "(x-5)(x+5)"},
   {q: "Door 3: Expand (x+3)(x+4)", a: "x^2+7x+12"},
-  {q: "Door 4: Simplify 36", a: "6"},
+  {q: "Door 4: Simplify √36", a: "6"},
   {q: "Final Door: 5, 10, 15, ?", a: "20"}
 ];
 
@@ -69,34 +91,54 @@ function load(){
   document.getElementById("question").innerText = questions[level].q;
 }
 
-function check(){
-  let input = document.getElementById("answer").value;
+function handleKey(e) {
+  if (e.key === "Enter") check();
+}
 
-  if(input == questions[level].a){
+function check(){
+  if (!gameActive) return;
+  
+  let input = document.getElementById("answer").value.replace(/\s+/g, ''); // Remove spaces for easier matching
+
+  if(input.toLowerCase() == questions[level].a.toLowerCase()){
     document.getElementById("correctSound").play();
-    document.getElementById("result").innerText = " Correct!";
+    document.getElementById("result").innerText = "✅ Correct!";
     level++;
 
     if(level < questions.length){
-      setTimeout(load, 1000);
+      setTimeout(() => {
+        load();
+        document.getElementById("result").innerText = "";
+      }, 1000);
     } else {
-      document.getElementById("question").innerText = " YOU ESCAPED!";
-      document.getElementById("result").innerText = "";
+      gameActive = false;
+      document.getElementById("question").innerText = "🎉 YOU ESCAPED!";
+      document.getElementById("result").innerText = "Master Mathematician!";
+      document.getElementById("timer").style.color = "gold";
     }
   } else {
     document.getElementById("wrongSound").play();
-    document.getElementById("result").innerText = " Try again!";
+    document.getElementById("result").innerText = "❌ Try again!";
   }
 
   document.getElementById("answer").value = "";
 }
 
-setInterval(function(){
+// Timer Logic
+let countdown = setInterval(function(){
+  if (!gameActive) {
+    clearInterval(countdown);
+    return;
+  }
+
   time--;
   document.getElementById("timer").innerText = "Time: " + time;
 
   if(time <= 0){
-    document.getElementById("question").innerText = " Time's up!";
+    clearInterval(countdown);
+    gameActive = false;
+    document.getElementById("question").innerText = "💀 Time's up!";
+    document.getElementById("timer").style.color = "red";
   }
 }, 1000);
 
